@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useMountedRef } from "utils/index";
 
 interface State<D> {
   error: Error | null;
@@ -25,10 +26,11 @@ export const useAsync = <D>(
     ...defaultInitialState,
     ...initialState,
   });
-
-   // useState直接传入函数的含义是：惰性初始化；所以，要用useState保存函数，不能直接传入函数
+  const mountedRef = useMountedRef();
+  // useState直接传入函数的含义是：惰性初始化；所以，要用useState保存函数，不能直接传入函数
   // https://codesandbox.io/s/blissful-water-230u4?file=/src/App.js
   const [retry, setRetry] = useState(() => () => {});
+
   const setData = (data: D) =>
     setState({
       data,
@@ -59,7 +61,7 @@ export const useAsync = <D>(
     setState({ ...state, stat: "loading" });
     return promise
       .then((data) => {
-        setData(data);
+        if (mountedRef.current) setData(data);
         return data;
       })
       .catch((error) => {

@@ -1,98 +1,108 @@
-// 导入 React 的 useEffect 和 useState Hook
 import { useEffect, useRef, useState } from "react";
 
-/**
- * 判断值是否为"假值"（falsy）
- * @param value - 需要判断的值
- * @returns - 如果是 0 返回 false（0 是有效数字），否则返回 !value
- * 
- * 注意：JavaScript 中的假值包括：null, undefined, '', false, NaN
- * 但 0 是特殊情况，我们认为 0 是有效值，所以单独处理
- */
-export const isFalsy = (value: unknown) => value === 0 ? false : !value
+export const isFalsy = (value: unknown) => (value === 0 ? false : !value);
 
 export const isVoid = (value: unknown) =>
   value === undefined || value === null || value === "";
-/**
- * 清理对象中的假值属性
- * @param object - 需要清理的对象
- * @returns - 移除假值属性后的新对象
- * 
- * 用途：用于生成 API 查询参数时，移除空值、undefined 等无效参数
- */
-export const cleanObject = (object?: { [key: string]: unknown }) => {
-  // 先创建对象的浅拷贝，避免修改原对象
-  const result = {...object}
-  
-  // 遍历对象的所有键
-  Object.keys(result).forEach(key => {
-    const value = result[key]
-    
-    // 如果值是假值，删除该属性
-    if(isFalsy(value)) {
-      // @ts-ignore 忽略类型检查
-      delete result[key]
+
+// let a: object
+// a = {name: 'jack'}
+// a = () => {
+// }
+// a = new RegExp('')
+//
+// let b: { [key: string]: unknown }
+// b = {name: 'Jack'}
+// b = () => {}
+// 在一个函数里，改变传入的对象本身是不好的
+export const cleanObject = (object: { [key: string]: unknown }) => {
+  // Object.assign({}, object)
+  const result = { ...object };
+  Object.keys(result).forEach((key) => {
+    const value = result[key];
+    if (isVoid(value)) {
+      delete result[key];
     }
-  })
-  
-  // 返回清理后的对象
-  return result
-}
+  });
+  return result;
+};
 
-/**
- * 自定义 Hook：组件挂载时执行一次回调函数
- * @param callback - 要执行的回调函数
- * 
- * 用途：替代 useEffect(() => { ... }, [])，语义更清晰
- */
-export const useMount = (callback: ()=> void) => {
+export const useMount = (callback: () => void) => {
   useEffect(() => {
-    // 执行传入的回调函数
-    callback()
-  },[])  // 空数组表示只在组件挂载时执行一次
-}
+    callback();
+    // TODO 依赖项里加上callback会造成无限循环，这个和useCallback以及useMemo有关系
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+};
 
-/**
- * 自定义 Hook：防抖函数
- * @template V - 值的类型（泛型）
- * @param value - 需要防抖的值
- * @param delay - 延迟时间（毫秒），默认 300ms
- * @returns - 防抖后的值
- * 
- * 用途：用于搜索框等需要延迟更新的场景，避免频繁触发 API 请求
- * 
- * 工作原理：
- * 1. 当 value 改变时，设置一个定时器
- * 2. 如果在 delay 时间内 value 再次改变，清除之前的定时器，重新计时
- * 3. 只有当 delay 时间内没有新的变化，才更新 debounceValue
- */
+// const debounce = (func, delay) => {
+//   let timeout;
+//   return (...param) => {
+//     if (timeout) {
+//       clearTimeout(timeout);
+//     }
+//     timeout = setTimeout(function() {
+//       func(...param);
+//     }, delay);
+//   }
+// }
+// const log = debounce(() => console.log('call'), 5000)
+// log()
+// log()
+// log()
+//   ...5s
+// 执行！
+
+// debounce 原理讲解：
+// 0s ---------> 1s ---------> 2s --------> ...
+//     一定要理解：这三个函数都是同步操作，所以它们都是在 0~1s 这个时间段内瞬间完成的；
+//     log()#1 // timeout#1
+//     log()#2 // 发现 timeout#1！取消之，然后设置timeout#2
+//     log()#3 // 发现 timeout#2! 取消之，然后设置timeout#3
+//             // 所以，log()#3 结束后，就只剩timeout#3在独自等待了
+
+// 后面用泛型来规范类型
 export const useDebounce = <V>(value: V, delay?: number) => {
-  // 初始化状态，将传入的 value 作为初始值
-  const [debounceValue, setDebounceValue] = useState(value)
+  const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
-    // 设置定时器，delay 毫秒后更新 debounceValue
-    const timeout = setTimeout(() => {
-      setDebounceValue(value)
-    }, delay)
+    // 每次在value变化以后，设置一个定时器
+    const timeout = setTimeout(() => setDebouncedValue(value), delay);
+    // 每次在上一个useEffect处理完以后再运行
+    return () => clearTimeout(timeout);
+  }, [value, delay]);
 
-    // 清理函数：在下次 effect 执行前或组件卸载时清除定时器
-    return () => clearTimeout(timeout)
-  }, [value, delay])  // 依赖项：value 或 delay 改变时重新执行
+  return debouncedValue;
+};
 
-  // 返回防抖后的值
-  return debounceValue
-}
+export const useArray = <T>(initialArray: T[]) => {
+  const [value, setValue] = useState(initialArray);
+  return {
+    value,
+    setValue,
+    add: (item: T) => setValue([...value, item]),
+    clear: () => setValue([]),
+    removeIndex: (index: number) => {
+      const copy = [...value];
+      copy.splice(index, 1);
+      setValue(copy);
+    },
+  };
+};
 
 export const useDocumentTitle = (title: string, keepOnUnmount = true) => {
   const oldTitle = useRef(document.title).current;
+  // 页面加载时: 旧title
+  // 加载后：新title
+
   useEffect(() => {
     document.title = title;
   }, [title]);
+
   useEffect(() => {
     return () => {
       if (!keepOnUnmount) {
-         // 如果不指定依赖，读到的就是旧title
+        // 如果不指定依赖，读到的就是旧title
         document.title = oldTitle;
       }
     };
@@ -117,4 +127,20 @@ export const subset = <
     keys.includes(key as K)
   );
   return Object.fromEntries(filteredEntries) as Pick<O, K>;
+};
+
+/**
+ * 返回组件的挂载状态，如果还没挂载或者已经卸载，返回false；反之，返回true
+ */
+export const useMountedRef = () => {
+  const mountedRef = useRef(false);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  });
+
+  return mountedRef;
 };
