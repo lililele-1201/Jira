@@ -1,7 +1,8 @@
 import qs from 'qs'
 import * as auth from 'auth-provider'
-import { config } from 'process'
 import { useAuth } from 'context/auth-context'
+import { useCallback } from 'react'
+
 const apiUrl = process.env.REACT_APP_API_URL
 
 interface Config extends RequestInit {
@@ -45,9 +46,12 @@ export const http = async (
 export const useHttp = () => {
   const {user} = useAuth()
   //utility type的用法：用泛型给它传入一个其他类型，然后utility type对这个类型进行某种操作
-  return (...[endpoint,config]: Parameters<typeof http>) => 
-    http(endpoint, {...config, token: user?.token})
-}
+  return useCallback(
+    (...[endpoint,config]: Parameters<typeof http>) => 
+    http(endpoint, {...config, token: user?.token}),
+    [user?.token]
+  );
+};
 
 //联合类型
 //let myFavoritNumber: string | number
