@@ -1,14 +1,17 @@
 import React from "react";
 import { Raw } from "types";
 import { Select } from "antd";
+
 type SelectProps = React.ComponentProps<typeof Select>;
+
 interface IdSelectProps
   extends Omit<SelectProps, "value" | "onChange" | "options"> {
-  value: Raw | null | undefined;
-  onChange: (value?: number) => void;
+  value?: Raw | null | undefined;
+  onChange?: (value?: number) => void;
   defaultOptionName?: string;
   options?: { name: string; id: number }[];
 }
+
 /**
  * value 可以传入多种类型的值
  * onChange只会回调 number|undefined 类型
@@ -22,7 +25,7 @@ export const IdSelect = (props: IdSelectProps) => {
   return (
     <Select
       value={options?.length ? toNumber(value) : 0}
-      onChange={(value) => onChange(toNumber(value) || undefined)}
+      onChange={(value) => onChange?.(toNumber(value) || undefined)}
       {...restProps}
     >
       {defaultOptionName ? (
@@ -36,4 +39,5 @@ export const IdSelect = (props: IdSelectProps) => {
     </Select>
   );
 };
+
 const toNumber = (value: unknown) => (isNaN(Number(value)) ? 0 : Number(value));
