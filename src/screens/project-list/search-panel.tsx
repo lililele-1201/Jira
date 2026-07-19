@@ -1,18 +1,10 @@
 
 import React from "react";
 import { Form, Input } from "antd";
-import { Project } from "screens/project-list/list";
+import { Project } from "types/project";
 import { UserSelect } from "components/user-select";
 
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-  title: string;
-  organization: string;
-  token: string;
-}
-
+import { User } from "types/user";
 interface SearchPanelProps {
   users: User[];
   param: Partial<Pick<Project, "name" | "personId">>;
@@ -21,7 +13,7 @@ interface SearchPanelProps {
 
 export const SearchPanel = ({ users, param, setParam }: SearchPanelProps) => {
   return (
-    <Form css={{ marginBottom: "2rem" }} layout={"inline"}>
+    <Form style={{ marginBottom: "2rem" }} layout={"inline"}>
       <Form.Item>
         {/*setParam(Object.assign({}, param, {name:evt.target.value}))*/}
         <Input

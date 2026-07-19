@@ -1,21 +1,11 @@
-/**
- * 用户认证状态管理 Context
- * 
- * 作用：集中管理整个应用的用户认证状态，实现跨组件的数据共享
- * 
- * 使用方式：
- * 1. 在根组件中用 <AuthProvider> 包裹所有子组件
- * 2. 在需要使用用户状态的组件中调用 useAuth() Hook
- */
-
-// 导入 React 和 useState Hook
 import React, { ReactNode } from "react";
 import * as auth from "auth-provider";
-import { User } from "screens/project-list/search-panel";
 import { http } from "utils/http";
 import { useMount } from "utils";
 import { useAsync } from "utils/use-async";
 import { FullPageErrorFallback, FullPageLoading } from "components/lib";
+import { User } from "types/user";
+import { useQueryClient } from "react-query";
 
 interface AuthForm {
   username: string;
@@ -53,11 +43,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     run,
     setData: setUser,
   } = useAsync<User | null>();
+  const queryClient = useQueryClient();
 
   // point free
   const login = (form: AuthForm) => auth.login(form).then(setUser);
   const register = (form: AuthForm) => auth.register(form).then(setUser);
-  const logout = () => auth.logout().then(() => setUser(null));
+  const logout = () =>
+    auth.logout().then(() => {
+      setUser(null);
+      queryClient.clear();
+    });
 
   useMount(() => {
     run(bootstrapUser());
