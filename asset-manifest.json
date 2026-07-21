@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/Jira/static/css/main.1c7db561.css",
-    "main.js": "/Jira/static/js/main.91b3dea4.js",
+    "main.js": "/Jira/static/js/main.e1756207.js",
     "static/js/453.fa9d9325.chunk.js": "/Jira/static/js/453.fa9d9325.chunk.js",
     "static/media/left.svg": "/Jira/static/media/left.e74de3ec0611913bda20171ee936a782.svg",
     "static/media/right.svg": "/Jira/static/media/right.b423a6cf7075ce3f4b85d573f75a00c3.svg",
@@ -11,11 +11,11 @@
     "index.html": "/Jira/index.html",
     "static/media/bug.svg": "/Jira/static/media/bug.6a9fbd1f219009a055ce37771659f2ae.svg",
     "main.1c7db561.css.map": "/Jira/static/css/main.1c7db561.css.map",
-    "main.91b3dea4.js.map": "/Jira/static/js/main.91b3dea4.js.map",
+    "main.e1756207.js.map": "/Jira/static/js/main.e1756207.js.map",
     "453.fa9d9325.chunk.js.map": "/Jira/static/js/453.fa9d9325.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.1c7db561.css",
-    "static/js/main.91b3dea4.js"
+    "static/js/main.e1756207.js"
   ]
 }
