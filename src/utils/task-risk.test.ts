@@ -1,6 +1,10 @@
 import dayjs from "dayjs";
 import { Task } from "types/task";
-import { filterTasks, getTaskRisk } from "utils/task-risk";
+import {
+  filterTasks,
+  getTaskRisk,
+  normalizeTaskRiskFilter,
+} from "utils/task-risk";
 
 const today = dayjs("2026-09-05");
 
@@ -72,4 +76,14 @@ test("the all risk filter keeps tasks without deadlines", () => {
   } as Task;
 
   expect(filterTasks([task], { risk: "all" }, today)).toEqual([task]);
+});
+
+test.each([
+  ["overdue", "overdue"],
+  ["dueSoon", "dueSoon"],
+  ["all", "all"],
+  ["unexpected", "all"],
+  [undefined, "all"],
+])("normalizes URL risk value %s to %s", (value, expected) => {
+  expect(normalizeTaskRiskFilter(value)).toBe(expected);
 });

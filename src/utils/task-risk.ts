@@ -4,6 +4,11 @@ import { Task } from "types/task";
 export type TaskRisk = "normal" | "dueSoon" | "overdue";
 export type TaskRiskFilter = "all" | Exclude<TaskRisk, "normal">;
 
+export const normalizeTaskRiskFilter = (
+  value?: string
+): TaskRiskFilter =>
+  value === "overdue" || value === "dueSoon" ? value : "all";
+
 export const getTaskRisk = (
   dueDate?: string,
   today: Dayjs = dayjs()

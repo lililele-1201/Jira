@@ -4,6 +4,7 @@ import { useUrlQueryParam } from "utils/url";
 import { useCallback, useMemo } from "react";
 import { useTask } from "utils/task";
 import { useDebounce } from "utils";
+import { normalizeTaskRiskFilter } from "utils/task-risk";
 
 export const useProjectIdInUrl = () => {
   const { pathname } = useLocation();
@@ -18,7 +19,7 @@ export const useKanbanSearchParams = () => ({ projectId: useProjectIdInUrl() });
 export const useKanbansQueryKey = () => ["kanbans", useKanbanSearchParams()];
 
 export const useTasksSearchParams = () => {
-  const [param, setParam] = useUrlQueryParam([
+  const [param] = useUrlQueryParam([
     "name",
     "typeId",
     "processorId",
@@ -61,4 +62,9 @@ export const useTasksModal = () => {
     close,
     isLoading,
   };
+};
+
+export const useTaskRiskSearchParam = () => {
+  const [{ risk }] = useUrlQueryParam(["risk"]);
+  return normalizeTaskRiskFilter(risk);
 };

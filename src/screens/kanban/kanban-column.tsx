@@ -8,6 +8,7 @@ import { Button, Card, Dropdown, Menu, Modal } from "antd";
 import { useTasks } from "utils/task";
 import {
   useKanbansQueryKey,
+  useTaskRiskSearchParam,
   useTasksModal,
   useTasksSearchParams,
 } from "screens/kanban/util";
@@ -17,6 +18,7 @@ import { Mark } from "components/mark";
 import { useDeleteKanban } from "utils/kanban";
 import { Row } from "components/lib";
 import { Drag, Drop, DropChild } from "components/drag-and-drop";
+import { filterTasks } from "utils/task-risk";
 
 const TaskTypeIcon = ({ id }: { id: number }) => {
   const { data: taskTypes } = useTaskTypes();
@@ -49,7 +51,11 @@ export const KanbanColumn = React.forwardRef<
   { kanban: Kanban }
 >(({ kanban, ...props }, ref) => {
   const { data: allTasks } = useTasks(useTasksSearchParams());
-  const tasks = allTasks?.filter((task) => task.kanbanId === kanban.id);
+  const risk = useTaskRiskSearchParam();
+  const tasks = filterTasks(
+    allTasks?.filter((task) => task.kanbanId === kanban.id) || [],
+    { risk }
+  );
   return (
     <Container {...props} ref={ref}>
       <Row between={true}>
