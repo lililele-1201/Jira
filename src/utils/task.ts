@@ -7,7 +7,6 @@ import {
   useEditConfig,
   useReorderTaskConfig,
 } from "utils/use-optimistic-options";
-import { Project } from "types/project";
 import { SortProps } from "utils/kanban";
 
 export const useTasks = (param?: Partial<Task>) => {
@@ -33,7 +32,7 @@ export const useAddTask = (queryKey: QueryKey) => {
 
 export const useTask = (id?: number) => {
   const client = useHttp();
-  return useQuery<Project>(["task", { id }], () => client(`tasks/${id}`), {
+  return useQuery<Task>(["task", { id }], () => client(`tasks/${id}`), {
     enabled: Boolean(id),
   });
 };

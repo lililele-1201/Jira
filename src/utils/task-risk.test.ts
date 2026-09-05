@@ -3,6 +3,7 @@ import { Task } from "types/task";
 import {
   filterTasks,
   getTaskRisk,
+  normalizeTaskPriority,
   normalizeTaskRiskFilter,
 } from "utils/task-risk";
 
@@ -86,4 +87,9 @@ test.each([
   [undefined, "all"],
 ])("normalizes URL risk value %s to %s", (value, expected) => {
   expect(normalizeTaskRiskFilter(value)).toBe(expected);
+});
+
+test("legacy tasks default to medium priority", () => {
+  expect(normalizeTaskPriority()).toBe("medium");
+  expect(normalizeTaskPriority("high")).toBe("high");
 });

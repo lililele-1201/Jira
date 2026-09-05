@@ -1,5 +1,6 @@
 import dayjs, { Dayjs } from "dayjs";
 import { Task } from "types/task";
+import { TaskPriority } from "types/task";
 
 export type TaskRisk = "normal" | "dueSoon" | "overdue";
 export type TaskRiskFilter = "all" | Exclude<TaskRisk, "normal">;
@@ -8,6 +9,10 @@ export const normalizeTaskRiskFilter = (
   value?: string
 ): TaskRiskFilter =>
   value === "overdue" || value === "dueSoon" ? value : "all";
+
+export const normalizeTaskPriority = (
+  priority?: TaskPriority
+): TaskPriority => priority || "medium";
 
 export const getTaskRisk = (
   dueDate?: string,

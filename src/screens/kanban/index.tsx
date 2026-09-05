@@ -4,6 +4,7 @@ import {
   useKanbanSearchParams,
   useKanbansQueryKey,
   useProjectInUrl,
+  useTaskRiskSearchParam,
   useTasksQueryKey,
   useTasksSearchParams,
 } from "screens/kanban/util";
@@ -18,6 +19,7 @@ import { CreateKanban } from "screens/kanban/create-kanban";
 import { TaskModal } from "screens/kanban/task-modal";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { Drag, Drop, DropChild } from "components/drag-and-drop";
+import { filterTasks } from "utils/task-risk";
 
 export const KanbanScreen = () => {
   useDocumentTitle("看板列表");
@@ -70,6 +72,7 @@ export const useDragEnd = () => {
   const { mutate: reorderKanban } = useReorderKanban(useKanbansQueryKey());
   const { mutate: reorderTask } = useReorderTask(useTasksQueryKey());
   const { data: allTasks = [] } = useTasks(useTasksSearchParams());
+  const risk = useTaskRiskSearchParam();
   return useCallback(
     ({ source, destination, type }: DropResult) => {
       if (!destination) {
@@ -86,17 +89,18 @@ export const useDragEnd = () => {
         reorderKanban({ fromId, referenceId: toId, type });
       }
       if (type === "ROW") {
+        const visibleTasks = filterTasks(allTasks, { risk });
         const fromKanbanId = +source.droppableId;
         const toKanbanId = +destination.droppableId;
         if (fromKanbanId === toKanbanId) {
           return;
         }
-        const fromTask = allTasks.filter(
+        const fromTask = visibleTasks.filter(
           (task) => task.kanbanId === fromKanbanId
         )[source.index];
-        const toTask = allTasks.filter((task) => task.kanbanId === toKanbanId)[
-          destination.index
-        ];
+        const toTask = visibleTasks.filter(
+          (task) => task.kanbanId === toKanbanId
+        )[destination.index];
         if (fromTask?.id === toTask?.id) {
           return;
         }
@@ -112,7 +116,7 @@ export const useDragEnd = () => {
         });
       }
     },
-    [kanbans, reorderKanban, allTasks, reorderTask]
+    [kanbans, reorderKanban, allTasks, risk, reorderTask]
   );
 };
 
