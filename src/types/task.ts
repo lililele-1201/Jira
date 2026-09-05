@@ -1,3 +1,5 @@
+export type TaskPriority = "low" | "medium" | "high";
+
 export interface Task {
   id: number;
   name: string;
@@ -10,4 +12,6 @@ export interface Task {
   // bug or task
   typeId: number;
   note: string;
+  priority?: TaskPriority;
+  dueDate?: string;
 }
