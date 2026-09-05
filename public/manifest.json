@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "校园任务管理",
+  "name": "校园团队协作任务管理系统",
   "icons": [
     {
       "src": "favicon.ico",
